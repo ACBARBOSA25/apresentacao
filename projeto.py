@@ -84,14 +84,14 @@ st.plotly_chart(data, use_container_width=True)
 
 st.divider()
 
-cidade = df.groupby(df["Cidade"])[["Tipo"]].value_counts().reset_index()
-fig_cidade = px.bar(cidade, x= "Cidade", y= "Tipo", text_auto=True, barmode="group", color= "Tipo", title= "Tipos de Veículo  por Cidades")
+cidade = df.groupby(["Cidade","Tipo"])["Nome"].count().reset_index()
+fig_cidade = px.bar(cidade, x= "Cidade", y= "Tipo", text="Nome", barmode="group", color= "Tipo", title= "Tipos de Veículo  por Cidades")
 st.plotly_chart(fig_cidade, use_container_width=True) 
 
 st.divider()
 
-Planos = df.groupby(df["Tipo"])[["Produtos"]].value_counts().reset_index()
-fig_Planos = px.bar(Planos, x= "Tipo", y= "Produtos", text_auto=True, barmode="group", color= "Produtos", title= "Planos das Adesões")
+df_grouped = df.groupby(["Tipo","Produtos"])["Nome"].count().reset_index()
+fig_Planos = px.bar(df_grouped, x= "Tipo", y= "Produtos", text="Nome", barmode="group", color= "Produtos", title= "Planos das Adesões")
 st.plotly_chart(fig_Planos, use_container_width=True) 
 
 st.divider()
@@ -109,10 +109,9 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-consultor = df.groupby(df["Voluntario"])[["Classificacao"]].value_counts().reset_index()       
-fig_consultor = px.bar(consultor, x= "Voluntario", y= "Classificacao",barmode="group", text_auto=True, color="Classificacao",title= " Classificacao por Consultor")
+df_grouped = df.groupby(["Voluntario","Classificacao"])["Nome"].count().reset_index()       
+fig_consultor = px.bar(df_grouped, x= "Voluntario", y= "Classificacao",barmode="group",color="Classificacao", text="Nome",title= " Classificacao por Consultor")
 st.plotly_chart(fig_consultor, use_container_width=True) 
-
 st.divider()
 
 df_filtrado = df[df["Classificacao"]=="NOVO"] 
