@@ -9,7 +9,10 @@ st.set_page_config(layout="wide")
 
 df = pd.read_excel('dados3.xlsx') 
 fin = pd.read_excel('financeiro.xlsx')
-    #df = df.sort_values("Cooperativa")
+df = df.sort_values("Cooperativa")
+
+filtro_Cooperativa = st.sidebar.multiselect('Filtrar por Escritórios', df["Cooperativa"].unique()) 
+df_filtered = df[df["Cooperativa"].isin(filtro_Cooperativa)] if  filtro_Cooperativa else df
 
 st.title("PAINEL - ADESÕES e FINANCEIRO - MÊS JANEIRO 2025")
 
@@ -55,73 +58,77 @@ st.bar_chart(df, x="Cooperativa", y="Situacao", color="Situacao", stack="center"
 
 st.divider()
 
-fig_Cooperativa = px.bar(df, x= "Cooperativa", y= "Situacao",color="Situacao",barmode="group", title= "Cooperativas")
-st.plotly_chart(fig_Cooperativa, use_container_width=True)
+
+
+cooperativa = px.bar(df_filtered, x= "Cooperativa", y= "Situacao",color="Situacao",barmode="group", title= "Cooperativas")
+st.plotly_chart(cooperativa, use_container_width=True)
 
 st.divider()
 
-df_grouped = df.groupby(["Cooperativa", "Classificacao"])["Nome"].count().reset_index()
-classificacao = px.bar(df_grouped, x= "Cooperativa", y= "Classificacao",barmode="group",text="Nome",color="Classificacao", title= "Adesões por Cooperativas")
+
+adesoes = df_filtered.groupby(["Cooperativa", "Classificacao"])["Nome"].count().reset_index()
+classificacao = px.bar(adesoes, x= "Cooperativa", y= "Classificacao",barmode="group",text="Nome",color="Classificacao", title= "Adesões por Cooperativas")
 st.plotly_chart(classificacao, use_container_width=True) 
 
 st.divider()
 
-tipo = df.groupby(df["Tipo"])["Placa"].count().reset_index()
+tipo = df_filtered.groupby(["Tipo"])["Placa"].count().reset_index()
 fig_tipo = px.bar(tipo, x= "Tipo", y= "Placa", barmode="group",text_auto=True, color= "Tipo", title= "Quantidade por Tipo de Veículo")
 st.plotly_chart(fig_tipo, use_container_width=True) 
 
 st.divider()
 
-result = df.groupby(df["Classificacao"])["Placa"].count().reset_index()
-Classificacao = px.bar(result, x= "Classificacao", y= "Placa", barmode="group", text_auto=True, color= "Classificacao", title= "Classificacao das Adesoes")
+classific = df_filtered.groupby(df["Classificacao"])["Placa"].count().reset_index()
+Classificacao = px.bar(classific, x= "Classificacao", y= "Placa", barmode="group", text_auto=True, color= "Classificacao", title= "Classificacao das Adesoes")
 st.plotly_chart(Classificacao, use_container_width=True) 
 
 st.divider()
 
-Contrato = df.groupby(df["Contrato"])["Placa"].count().reset_index()
-data  = px.bar(Contrato, x= "Contrato", y= "Placa",text_auto=True, barmode="group", title= "Adesões por Datas")
+datas = df_filtered.groupby(df["Contrato"])["Placa"].count().reset_index()
+data  = px.bar(datas, x= "Contrato", y= "Placa",text_auto=True, barmode="group", title= "Adesões por Datas")
 st.plotly_chart(data, use_container_width=True)
 
 st.divider()
 
-cidade = df.groupby(["Cidade","Tipo"])["Nome"].count().reset_index()
-fig_cidade = px.bar(cidade, x= "Cidade", y= "Tipo", text="Nome", barmode="group", color= "Tipo", title= "Tipos de Veículo  por Cidades")
+tipo = df_filtered.groupby(["Cidade","Tipo"])["Nome"].count().reset_index()
+fig_cidade = px.bar(tipo, x= "Cidade", y= "Tipo", text="Nome", barmode="group", color= "Tipo", title= "Tipos de Veículo  por Cidades")
 st.plotly_chart(fig_cidade, use_container_width=True) 
 
 st.divider()
 
-df_grouped = df.groupby(["Tipo","Produtos"])["Nome"].count().reset_index()
-fig_Planos = px.bar(df_grouped, x= "Tipo", y= "Produtos", text="Nome", barmode="group", color= "Produtos", title= "Planos das Adesões")
+planos = df_filtered.groupby(["Tipo","Produtos"])["Nome"].count().reset_index()
+fig_Planos = px.bar(planos, x= "Tipo", y= "Produtos", text="Nome", barmode="group", color= "Produtos", title= "Planos das Adesões")
 st.plotly_chart(fig_Planos, use_container_width=True) 
 
 st.divider()
 
-parcela = df.groupby(df["Cooperativa"])[["Parcela"]].sum().reset_index()
-fig_parcela = px.bar(parcela, x= "Cooperativa", y= "Parcela",text_auto=True,  title= " R$ - Parcelas por Cooperativa")
+parcelas = df_filtered.groupby(df["Cooperativa"])[["Parcela"]].sum().reset_index()
+fig_parcela = px.bar(parcelas, x= "Cooperativa", y= "Parcela",text_auto=True,  title= " R$ - Parcelas por Cooperativa")
 st.plotly_chart(fig_parcela, use_container_width=True) 
 
 
-parcela = df.groupby(df["Cooperativa"])[["Parcela"]].sum().reset_index()
-fig = px.pie(parcela, values='Parcela', names='Cooperativa', title='Representatividade Por Cooperativas')
+representa = df_filtered.groupby(["Cooperativa"])[["Parcela"]].sum().reset_index()
+fig = px.pie(representa, values='Parcela', names='Cooperativa', title='Representatividade Por Cooperativas')
 fig.update_layout(legend_title="Cooperativa", legend_y=0.9)
 fig.update_traces(textinfo='percent+label', textposition='inside')
 st.plotly_chart(fig, use_container_width=True)
 
 st.divider()
 
-df_grouped = df.groupby(["Voluntario","Classificacao"])["Nome"].count().reset_index()       
+df_grouped = df_filtered.groupby(["Voluntario","Classificacao"])["Nome"].count().reset_index()       
 fig_consultor = px.bar(df_grouped, x= "Voluntario", y= "Classificacao",barmode="group",color="Classificacao", text="Nome",title= " Classificacao por Consultor")
 st.plotly_chart(fig_consultor, use_container_width=True) 
+
 st.divider()
 
-df_filtrado = df[df["Classificacao"]=="NOVO"] 
-novo = df_filtrado.groupby(["Voluntario", "Tipo"]).count().reset_index()          
-fig_novo = px.bar(novo, x= "Voluntario", y= "Classificacao", barmode="group",color="Tipo",text_auto=True, title= " Adesões NOVAS Por Consultor")
+novos = df[df["Classificacao"]=="NOVO"] 
+novo = df_filtered.groupby(["Voluntario", "Tipo"]).count().reset_index()          
+fig_novo = px.bar(novo, x= "Voluntario", y= "Classificacao", color="Tipo", barmode="group",text_auto=True, title= " Adesões NOVAS Por Consultor")
 st.plotly_chart(fig_novo) 
 
 st.divider()
 
-treemap = df[["Cidade", "Placa"]].groupby(by=["Cidade"])["Placa"].count().reset_index()
+treemap = df_filtered[["Cidade", "Placa"]].groupby(by=["Cidade"])["Placa"].count().reset_index()
 
 fig2 = px.treemap(treemap, path=["Cidade","Placa"], values = "Placa", hover_data=["Cidade"],
                   color="Cidade", title="Cidades e Placas", height=700, width=600)
